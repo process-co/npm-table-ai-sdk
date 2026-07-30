@@ -48,12 +48,25 @@ jobs:
         env:
           RELEASE_VERSION: ${{ steps.version.outputs.value }}
         run: |
+          package="@process.co/table-ai-sdk@${RELEASE_VERSION}"
+          for attempt in {1..20}; do
+            if npm view "$package" version --json >/dev/null 2>&1; then
+              break
+            fi
+            if [[ "$attempt" == "20" ]]; then
+              echo "::error::${package} was not visible in the npm registry after 100 seconds"
+              exit 1
+            fi
+            echo "Waiting for ${package} to become visible in the npm registry (${attempt}/20)"
+            sleep 5
+          done
+
           consumer="${RUNNER_TEMP}/table-ai-sdk-consumer"
           mkdir -p "$consumer"
           cd "$consumer"
           npm init --yes
           npm install \
-            "@process.co/table-ai-sdk@${RELEASE_VERSION}" \
+            "$package" \
             "ai@^6"
           node --input-type=module --eval \
             "await import('@process.co/table-ai-sdk')"
