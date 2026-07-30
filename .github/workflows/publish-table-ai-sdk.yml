@@ -1,0 +1,62 @@
+name: "Publish Table AI SDK"
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+      - name: Resolve release version
+        id: version
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version=$(node -p "require('./package.json').version")
+          fi
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.][0-9A-Za-z.]+)?$ ]]
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+      - name: Prepare package manifest
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          npm pkg set "version=${RELEASE_VERSION}"
+          test -f dist/index.js
+          test -f dist/index.cjs
+          test -f dist/index.d.ts
+          test -f SOURCE_COMMIT
+          ! grep -R "workspace:" package.json
+          npm pack --dry-run
+      - name: Publish public package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+      - name: Verify fresh ESM and CommonJS consumers
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          consumer="${RUNNER_TEMP}/table-ai-sdk-consumer"
+          mkdir -p "$consumer"
+          cd "$consumer"
+          npm init --yes
+          npm install \
+            "@process.co/table-ai-sdk@${RELEASE_VERSION}" \
+            "ai@^6"
+          node --input-type=module --eval \
+            "await import('@process.co/table-ai-sdk')"
+          node --eval "require('@process.co/table-ai-sdk')"
