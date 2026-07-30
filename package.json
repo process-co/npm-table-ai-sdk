@@ -1,6 +1,6 @@
 {
   "name": "@process.co/table-ai-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Bounded AI SDK tools for the Process Table API",
   "license": "MIT",
   "type": "module",
@@ -44,6 +44,6 @@
     "zod": "^4.3.6"
   },
   "peerDependencies": {
-    "ai": "^6.0.0"
+    "ai": "^6.0.0 || ^7.0.0"
   }
 }

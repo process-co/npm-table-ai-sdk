@@ -67,7 +67,8 @@ jobs:
           npm init --yes
           npm install \
             "$package" \
-            "ai@^6"
+            "ai@^7"
+          npm audit --omit=dev --audit-level=high
           node --input-type=module --eval \
             "await import('@process.co/table-ai-sdk')"
           node --eval "require('@process.co/table-ai-sdk')"

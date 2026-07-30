@@ -7,8 +7,13 @@ model input.
 ## Install
 
 ```bash
-npm install @process.co/table-ai-sdk @process.co/table-client ai@^6 zod
+npm install @process.co/table-ai-sdk @process.co/table-client ai@^7 zod
 ```
+
+AI SDK 7 is the recommended peer and requires Node.js 22 or newer. AI SDK 6
+remains supported for Node.js 20 consumers, but currently installs an upstream
+`undici` version with known security advisories. Both peer majors are exercised
+by the packed-consumer release gate.
 
 ## Server-side use
 
