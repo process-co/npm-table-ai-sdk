@@ -43,8 +43,6 @@ jobs:
           ! grep -R "workspace:" package.json
           npm pack --dry-run
       - name: Publish public package
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
       - name: Verify fresh ESM and CommonJS consumers
         env:
