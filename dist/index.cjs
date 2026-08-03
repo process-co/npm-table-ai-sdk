@@ -153,7 +153,14 @@ function toProcessTableToolError(error) {
       requestId: ""
     });
   }
-  if (error instanceof import_table_client.TableServiceError || isTableServiceErrorLike(error)) {
+  if (error instanceof import_table_client.TableServiceError) {
+    return new ProcessTableToolError({
+      code: error.code,
+      statusCode: error.statusCode,
+      requestId: error.requestId
+    });
+  }
+  if (isTableServiceErrorLike(error)) {
     return new ProcessTableToolError({
       code: error.code,
       statusCode: error.statusCode,

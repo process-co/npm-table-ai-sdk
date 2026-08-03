@@ -124,7 +124,14 @@ function toProcessTableToolError(error) {
       requestId: ""
     });
   }
-  if (error instanceof TableServiceError || isTableServiceErrorLike(error)) {
+  if (error instanceof TableServiceError) {
+    return new ProcessTableToolError({
+      code: error.code,
+      statusCode: error.statusCode,
+      requestId: error.requestId
+    });
+  }
+  if (isTableServiceErrorLike(error)) {
     return new ProcessTableToolError({
       code: error.code,
       statusCode: error.statusCode,
